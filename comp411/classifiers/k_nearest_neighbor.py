@@ -1,5 +1,6 @@
 import builtins
 import numpy as np
+from statistics import mode
 
 class KNearestNeighbor(object):
     """ a kNN classifier with Cosine and L2 distances """
@@ -84,7 +85,7 @@ class KNearestNeighbor(object):
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         
-                pass
+                dists[i,j] = np.sqrt(np.sum(np.square(X[i] - self.X_train[j])))
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -231,6 +232,21 @@ class KNearestNeighbor(object):
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
 
+    def most_frequent(self, thelist):
+        if(len(thelist) == 0):
+            return null
+        if(len(thelist) == 1):
+            return thelist[0]
+        max_fre = 0
+        label = thelist[0]
+        for n in thelist:
+            counter = thelist.count(n)
+            if(counter > max_fre):
+                max_fre = counter
+                label = n
+                
+        return label
+    
     def predict_labels(self, dists, k=1):
         """
         Given a matrix of distances between test points and training points,
@@ -259,7 +275,10 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            closest_i = np.argsort(dists[i])
+
+            for j in range(k):
+                closest_y.append(self.y_train[closest_i[j]])
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
@@ -270,8 +289,8 @@ class KNearestNeighbor(object):
             # label.                                                                #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
+            
+            y_pred[i] = self.most_frequent(closest_y)
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
