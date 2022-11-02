@@ -21,7 +21,7 @@ def svm_loss_naive(W, X, y, reg):
     - loss as single float
     - gradient with respect to weights W; an array of same shape as W
     """
-    dW = np.zeros(W.shape) # initialize the gradient as zero
+    dW = np.zeros(W.shape)  # initialize the gradient as zero
 
     # compute the loss and the gradient
     num_classes = W.shape[1]
@@ -33,16 +33,20 @@ def svm_loss_naive(W, X, y, reg):
         for j in range(num_classes):
             if j == y[i]:
                 continue
-            margin = scores[j] - correct_class_score + 1 # note delta = 1
+            margin = scores[j] - correct_class_score + 1  # note delta = 1
             if margin > 0:
                 loss += margin
+                dW[:, j] += X[i]
+                dW[:, y[i]] -= X[i]
 
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
     loss /= num_train
+    dW /= num_train
 
     # Add regularization to the loss.
     loss += reg * np.sum(W * W)
+    dW += reg * 2 * W
 
     #############################################################################
     # TODO:                                                                     #
@@ -57,8 +61,9 @@ def svm_loss_naive(W, X, y, reg):
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    
+
     return loss, dW
+
 
 def huber_loss_naive(W, X, y, reg):
     """
@@ -68,7 +73,7 @@ def huber_loss_naive(W, X, y, reg):
     implemented under the name svm_loss_naive. You can refer to the Wikipedia page:
     https://en.wikipedia.org/wiki/Huber_loss for a mathematical discription.
     Please see "Variant for classification" content.
-    
+
     Inputs have dimension D, there are C classes, and we operate on minibatches
     of N examples.
 
@@ -83,8 +88,8 @@ def huber_loss_naive(W, X, y, reg):
     - loss as single float
     - gradient with respect to weights W; an array of same shape as W
     """
-    dW = np.zeros(W.shape) # initialize the gradient as zero
-    
+    dW = np.zeros(W.shape)  # initialize the gradient as zero
+
     ###############################################################################
     # TODO:                                                                       #
     # Complete the naive implementation of the Huber Loss, calculate the gradient #
@@ -92,11 +97,11 @@ def huber_loss_naive(W, X, y, reg):
     # the svm loss naive implementation with subtle differences.                  #
     ###############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    
+
     pass
-    
+
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    
+
     return loss, dW
 
 
@@ -107,7 +112,7 @@ def svm_loss_vectorized(W, X, y, reg):
     Inputs and outputs are the same as svm_loss_naive.
     """
     loss = 0.0
-    dW = np.zeros(W.shape) # initialize the gradient as zero
+    dW = np.zeros(W.shape)  # initialize the gradient as zero
 
     #############################################################################
     # TODO:                                                                     #
@@ -137,6 +142,7 @@ def svm_loss_vectorized(W, X, y, reg):
 
     return loss, dW
 
+
 def huber_loss_vectorized(W, X, y, reg):
     """
     Structured Huber loss function, vectorized implementation.
@@ -144,7 +150,7 @@ def huber_loss_vectorized(W, X, y, reg):
     Inputs and outputs are the same as huber_loss_naive.
     """
     loss = 0.0
-    dW = np.zeros(W.shape) # initialize the gradient as zero
+    dW = np.zeros(W.shape)  # initialize the gradient as zero
 
     #############################################################################
     # TODO:                                                                     #
@@ -152,9 +158,9 @@ def huber_loss_vectorized(W, X, y, reg):
     # result in loss.                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    
+
     pass
-    
+
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     #############################################################################
     # TODO:                                                                     #
@@ -166,9 +172,9 @@ def huber_loss_vectorized(W, X, y, reg):
     # loss.                                                                     #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    
+
     pass
-    
+
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     return loss, dW
