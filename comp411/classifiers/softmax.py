@@ -41,7 +41,28 @@ def softmax_loss_naive(W, X, y, reg_l2, reg_l1 = 0):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    num_train = X.shape[0]
+    num_classes = W.shape[1]
+    num_dim = W.shape[0]
+    for i in range(num_train):
+        scores = X[i].dot(W)
+        exp_scores = np.exp(scores)
+        probs = exp_scores / np.sum(exp_scores)
+        loss += -np.log(probs[y[i]])
+        for j in range(num_classes):
+            if j == y[i]:
+                dW[:, j] += (probs[j] - 1) * X[i]
+            else:
+                dW[:, j] += probs[j] * X[i]
+    loss /= num_train
+    dW /= num_train
+    if regtype == 'L2':
+        loss += reg_l2 * np.sum(W * W)
+        dW += 2 * reg_l2 * W
+    elif regtype == 'ElasticNet':
+        loss += reg_l2 * np.sum(W * W) + reg_l1 * np.sum(np.abs(W))
+        dW += 2 * reg_l2 * W + reg_l1 * np.sign(W)
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -72,7 +93,19 @@ def softmax_loss_vectorized(W, X, y, reg_l2, reg_l1 = 0):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    num_train = X.shape[0]
+
+    scores = X.dot(W)
+    exp_scores = np.exp(scores)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    loss = -np.sum(np.log(probs[np.arange(num_train), y]))
+    loss /= num_train
+    if regtype == 'L2':
+        loss += reg_l2 * np.sum(W * W)
+    elif regtype == 'ElasticNet':
+        loss += reg_l2 * np.sum(W * W) + reg_l1 * np.sum(np.abs(W))
+        
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
