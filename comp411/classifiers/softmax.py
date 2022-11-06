@@ -104,8 +104,16 @@ def softmax_loss_vectorized(W, X, y, reg_l2, reg_l1 = 0):
         loss += reg_l2 * np.sum(W * W)
     elif regtype == 'ElasticNet':
         loss += reg_l2 * np.sum(W * W) + reg_l1 * np.sum(np.abs(W))
-        
 
+    dscores = probs
+    dscores[np.arange(num_train), y] -= 1
+    dscores /= num_train
+    dW = np.dot(X.T, dscores)
+    if regtype == 'L2':
+        dW += 2 * reg_l2 * W
+    elif regtype == 'ElasticNet':
+        dW += 2 * reg_l2 * W + reg_l1 * np.sign(W)
+    
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

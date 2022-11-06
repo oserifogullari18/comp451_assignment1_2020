@@ -115,7 +115,7 @@ class FourLayerNet(object):
         exp_correct_class_scores = np.exp(scores[np.arange(N), y])
         correct_logprobs = -np.log(exp_correct_class_scores / sum_exp_scores)
         data_loss = np.sum(correct_logprobs) / N
-        reg_loss = 0.5 * reg * np.sum(W1 * W1) + 0.5 * reg * np.sum(W2 * W2) + 0.5 * reg * np.sum(W3 * W3) + 0.5 * reg * np.sum(W4 * W4)
+        reg_loss = reg * np.sum(W1 * W1) + reg * np.sum(W2 * W2) + reg * np.sum(W3 * W3) + reg * np.sum(W4 * W4)
         loss = data_loss + reg_loss
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -129,7 +129,24 @@ class FourLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # Backward pass: compute gradients
+        dscores = np.exp(scores) / sum_exp_scores[:, np.newaxis]
+        dscores[np.arange(N), y] -= 1
+        dscores /= N
+        grads['W4'] = h3.T.dot(dscores) + 2 * reg * W4
+        grads['b4'] = np.sum(dscores, axis=0)
+        dh3 = dscores.dot(W4.T)
+        dh3[h3 <= 0] = 0
+        grads['W3'] = h2.T.dot(dh3) + 2 * reg * W3
+        grads['b3'] = np.sum(dh3, axis=0)
+        dh2 = dh3.dot(W3.T)
+        dh2[h2 <= 0] = 0
+        grads['W2'] = h1.T.dot(dh2) + 2 * reg * W2
+        grads['b2'] = np.sum(dh2, axis=0)
+        dh1 = dh2.dot(W2.T)
+        dh1[h1 <= 0] = 0
+        grads['W1'] = X.T.dot(dh1) + 2 * reg * W1
+        grads['b1'] = np.sum(dh1, axis=0)
     
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -246,7 +263,11 @@ class FourLayerNet(object):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        h1 = np.maximum(0, X.dot(self.params['W1']) + self.params['b1'])
+        h2 = np.maximum(0, h1.dot(self.params['W2']) + self.params['b2'])
+        h3 = np.maximum(0, h2.dot(self.params['W3']) + self.params['b3'])
+        scores = h3.dot(self.params['W4']) + self.params['b4']
+        y_pred = np.argmax(scores, axis=1)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
