@@ -44,23 +44,26 @@ def softmax_loss_naive(W, X, y, reg_l2, reg_l1=0):
 
     num_train = X.shape[0]
     num_classes = W.shape[1]
+    num_dim = W.shape[0]
     for i in range(num_train):
         scores = X[i].dot(W)
-        scores -= np.max(scores)
-        correct_class_score = scores[y[i]]
-        exp_sum = np.sum(np.exp(scores))
-        loss += -correct_class_score + np.log(exp_sum)
+        exp_scores = np.exp(scores)
+        probs = exp_scores / np.sum(exp_scores)
+        loss += -np.log(probs[y[i]])
         for j in range(num_classes):
-            dW[:, j] += (np.exp(scores[j])/exp_sum)*X[i]
-        dW[:, y[i]] -= X[i]
+            if j == y[i]:
+                dW[:, j] += (probs[j] - 1) * X[i]
+            else:
+                dW[:, j] += probs[j] * X[i]
     loss /= num_train
     dW /= num_train
     if regtype == 'L2':
         loss += reg_l2 * np.sum(W * W)
-        dW += 2*reg_l2*W
+        dW += 2 * reg_l2 * W
     elif regtype == 'ElasticNet':
         loss += reg_l2 * np.sum(W * W) + reg_l1 * np.sum(np.abs(W))
-        dW += 2*reg_l2*W + reg_l1*np.sign(W)
+        dW += 2 * reg_l2 * W + reg_l1 * np.sign(W)
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -92,26 +95,26 @@ def softmax_loss_vectorized(W, X, y, reg_l2, reg_l1=0):
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     num_train = X.shape[0]
-    num_classes = W.shape[1]
+
     scores = X.dot(W)
-    scores -= np.max(scores, axis=1, keepdims=True)
-    exp_sum = np.sum(np.exp(scores), axis=1, keepdims=True)
-    correct_class_score = scores[np.arange(num_train), y]
-    loss = np.sum(-correct_class_score + np.log(exp_sum))
+    exp_scores = np.exp(scores)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    loss = -np.sum(np.log(probs[np.arange(num_train), y]))
     loss /= num_train
     if regtype == 'L2':
         loss += reg_l2 * np.sum(W * W)
     elif regtype == 'ElasticNet':
         loss += reg_l2 * np.sum(W * W) + reg_l1 * np.sum(np.abs(W))
 
-    softmax = np.exp(scores)/exp_sum
-    softmax[np.arange(num_train), y] -= 1
-    dW = X.T.dot(softmax)
-    dW /= num_train
+    dscores = probs
+    dscores[np.arange(num_train), y] -= 1
+    dscores /= num_train
+    dW = np.dot(X.T, dscores)
     if regtype == 'L2':
-        dW += 2*reg_l2*W
+        dW += 2 * reg_l2 * W
     elif regtype == 'ElasticNet':
-        dW += 2*reg_l2*W + reg_l1*np.sign(W)
+        dW += 2 * reg_l2 * W + reg_l1 * np.sign(W)
+    
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
