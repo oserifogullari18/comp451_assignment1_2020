@@ -19,7 +19,7 @@ class FourLayerNet(object):
     The outputs of the third fully-connected layer are the scores for each class.
     """
 
-    def __init__(self, input_size, hidden_size, output_size, std=1e-3):
+    def __init__(self, input_size, hidden_size, output_size, std=1e-2):
         """
         Initialize the model. Weights are initialized to small random values and
         biases are initialized to zero. Weights and biases are stored in the
@@ -87,8 +87,12 @@ class FourLayerNet(object):
         # shape (N, C).                                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        
-        pass
+        C = W4.shape[1]
+        scores = np.zeros((N, C))
+        h1 = np.maximum(0, X.dot(W1) + b1)
+        h2 = np.maximum(0, h1.dot(W2) + b2)
+        h3 = np.maximum(0, h2.dot(W3) + b3)
+        scores = h3.dot(W4) + b4
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -106,7 +110,13 @@ class FourLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         
-        pass
+        # Compute the loss
+        sum_exp_scores = np.sum(np.exp(scores), axis=1)
+        exp_correct_class_scores = np.exp(scores[np.arange(N), y])
+        correct_logprobs = -np.log(exp_correct_class_scores / sum_exp_scores)
+        data_loss = np.sum(correct_logprobs) / N
+        reg_loss = 0.5 * reg * np.sum(W1 * W1) + 0.5 * reg * np.sum(W2 * W2) + 0.5 * reg * np.sum(W3 * W3) + 0.5 * reg * np.sum(W4 * W4)
+        loss = data_loss + reg_loss
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -164,7 +174,9 @@ class FourLayerNet(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            idx = np.random.choice(num_train, batch_size, replace=True)
+            X_batch = X[idx]
+            y_batch = y[idx]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -180,7 +192,15 @@ class FourLayerNet(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             
-            pass
+            self.params['W1'] -= learning_rate * grads['W1']
+            self.params['b1'] -= learning_rate * grads['b1']
+            self.params['W2'] -= learning_rate * grads['W2']
+            self.params['b2'] -= learning_rate * grads['b2']
+            self.params['W3'] -= learning_rate * grads['W3']
+            self.params['b3'] -= learning_rate * grads['b3']
+            self.params['W4'] -= learning_rate * grads['W4']
+            self.params['b4'] -= learning_rate * grads['b4']
+
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
